@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:17.2-alpine
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: power_plant  # This creates the 'power_plant' database on startup
+    volumes:
+      - ./power_plant_ddl.sql:/docker-entrypoint-initdb.d/init.sql  # Mount the init.sql file to run during startup
+    ports:
+      - "5432:5432"  # Expose PostgreSQL port to the host
+    networks:
+      - db_network
+
+networks:
+  db_network:
+    driver: bridge
