@@ -5,7 +5,6 @@ import com.example.powerplant.payload.response.PowerPlantRegisterResponse;
 import com.example.powerplant.payload.response.SearchResponse;
 import com.example.powerplant.service.PowerPlantService;
 import com.example.powerplant.service.SearchService;
-import org.springframework.util.MimeType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -20,17 +19,19 @@ public class PowerPlantController {
         this.powerPlantService = powerPlantService;
         this.searchService = searchService;
     }
+
     @PostMapping("/register")
     public Flux<PowerPlantRegisterResponse> registerResponseFlux(@RequestBody Flux<PowerPlantRegistrationRequest> powerPlants) {
         return powerPlantService.registerPowerPlantStream(powerPlants);
     }
-@GetMapping(value = "/search")
+
+    @GetMapping(value = "/search")
     public Mono<SearchResponse> searchResponseMono(@RequestParam Integer startPostcode,
                                                    @RequestParam Integer endPostcode,
                                                    @RequestParam(required = false) Long minCapacity,
                                                    @RequestParam(required = false) Long maxCapacity) {
-return searchService.getPowerPlants(startPostcode, endPostcode, minCapacity, maxCapacity);
-}
+        return searchService.getNamesAndStatistics(minCapacity, maxCapacity, startPostcode, endPostcode);
+    }
 
 
 }

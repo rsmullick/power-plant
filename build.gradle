@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.2'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
 }
 
 group = 'com.example'
@@ -33,6 +34,7 @@ dependencies {
     runtimeOnly 'org.postgresql:r2dbc-postgresql'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mockito:mockito-core:5.15.2'
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     testImplementation 'io.projectreactor:reactor-test'
     testImplementation 'org.testcontainers:junit-jupiter'
@@ -40,7 +42,48 @@ dependencies {
     testImplementation 'org.testcontainers:r2dbc'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
+jacoco {
+    toolVersion = "0.8.12" // Use latest JaCoCo version compatible with Gradle
+}
 
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.70 // Minimum test coverage threshold (70%)
+            }
+        }
+    }
+}
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+
+jacocoTestReport {
+    dependsOn test
+
+    reports {
+        html {
+            enabled true // Enable HTML report
+        }
+        xml {
+            enabled true // Enable XML report
+        }
+        csv {
+            enabled false // Disable CSV report
+        }
+    }
+
+    // Specify the source sets for JaCoCo to analyze
+    sourceSets sourceSets.main
+
+    // Exclude POJOs and test classes from coverage
+    classDirectories.setFrom(files(classDirectories.files.collect {
+        fileTree(dir: it, include: '**/*.class').exclude('**/pojos/**', '**/*Pojo.class')
+    }))
+
+    // Include additional source directories if needed
+    additionalSourceDirs.setFrom(files(sourceSets.main.allSource.srcDirs))
 }

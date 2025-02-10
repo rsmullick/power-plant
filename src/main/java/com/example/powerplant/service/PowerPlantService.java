@@ -4,16 +4,15 @@ import com.example.powerplant.entity.PowerPlantEntity;
 import com.example.powerplant.payload.request.PowerPlantRegistrationRequest;
 import com.example.powerplant.payload.response.PowerPlantRegisterResponse;
 import com.example.powerplant.repository.PowerPlantRepository;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 
+@Slf4j
 @Service
 public class PowerPlantService {
     private final PowerPlantRepository powerPlantRepository;
@@ -33,8 +32,9 @@ public class PowerPlantService {
     }
 
     public Flux<PowerPlantRegisterResponse> registerPowerPlants(List<PowerPlantEntity> powerPlantEntities) {
-        return powerPlantRepository.saveAll(powerPlantEntities).map(PowerPlantService::convertToResponse).onErrorMap(
-                e -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error saving powerplants", e));
+        return powerPlantRepository.saveAll(powerPlantEntities).onErrorContinue((e, i) -> {
+            log.error("Error For Item {}, error message {}", i, e.getMessage());
+        }).map(PowerPlantService::convertToResponse);
     }
 
     public Mono<PowerPlantRegisterResponse> registerPowerPlant(PowerPlantRegistrationRequest request) {
