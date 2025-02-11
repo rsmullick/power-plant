@@ -26,10 +26,10 @@ public class PowerPlantController {
     }
 
     @GetMapping(value = "/search")
-    public Mono<SearchResponse> searchResponseMono(@RequestParam Integer startPostcode,
-                                                   @RequestParam Integer endPostcode,
-                                                   @RequestParam(required = false) Long minCapacity,
-                                                   @RequestParam(required = false) Long maxCapacity) {
+    public Flux<SearchService.StatsAccumulator> searchResponseMono(@RequestParam Integer startPostcode,
+                                           @RequestParam Integer endPostcode,
+                                           @RequestParam(required = false) Long minCapacity,
+                                           @RequestParam(required = false) Long maxCapacity) {
         return searchService.getNamesAndStatistics(minCapacity, maxCapacity, startPostcode, endPostcode);
     }
 
