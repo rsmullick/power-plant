@@ -1,5 +1,6 @@
 package com.example.powerplant.service;
 
+import com.example.powerplant.entity.PowerPlantEntity;
 import com.example.powerplant.payload.response.PowerPlantRegisterResponse;
 import com.example.powerplant.payload.response.SearchResponse;
 import com.example.powerplant.repository.PowerPlantRepository;
@@ -29,17 +30,13 @@ public class SearchService {
         StatsAccumulator accumulator = new StatsAccumulator();
         List<String> names = new ArrayList<>();
         // Stream power plants with names and capacities
-        Flux<PowerPlantRegisterResponse> powerPlantsFlux = powerPlantRepository
-                .findByPostcodeAndCapacityRange(minPostcode, maxPostcode, minCapacity, maxCapacity)
-                .map(PowerPlantService::convertToResponse) // Convert to response format
+        Flux<PowerPlantEntity> powerPlantsEntityFlux = powerPlantRepository
+                .findByPostcodeAndCapacityRange(minPostcode, maxPostcode, minCapacity, maxCapacity);
+          Flux<PowerPlantRegisterResponse> powerPlantsFlux = powerPlantsEntityFlux.map(PowerPlantService::convertToResponse) // Convert to response format
                 .doOnNext(powerPlant -> {
-                    // Emit names progressively
                     // namesSink.tryEmitNext(powerPlant.getName());
-                    //  System.out.println("Name: " + powerPlant.getName());
-                    // Accumulate stats incrementally
                     accumulator.updateStats(powerPlant.getCapacity());
                     names.add(powerPlant.getName());
-                    System.out.println("Accumulator stats: " + accumulator);
                 });
 
         // Compute the statistics incrementally while streaming

@@ -14,7 +14,7 @@ public interface PowerPlantRepository extends R2dbcRepository<PowerPlantEntity, 
     @Query("SELECT * FROM power_plant WHERE postcode >= :startPostcode AND postcode <= :endPostcode AND is_deleted = false AND ((:minCapacity is null) or capacity >= :minCapacity) AND ((:maxCapacity is null) or capacity <= :maxCapacity) ORDER BY capacity")
     Flux<PowerPlantEntity> findByPostcodeAndCapacityRange(@Param("startPostcode") int startPostcode,
                                                           @Param("endPostcode") int endPostcode,
-                                                          @Param("minCapacity") Long minCapacity,
-                                                          @Param("maxCapacity") Long maxCapacity);
+                                                          @Param("minCapacity") long minCapacity,
+                                                          @Param("maxCapacity") long maxCapacity);
 
 }

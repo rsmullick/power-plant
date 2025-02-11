@@ -3,7 +3,6 @@ package com.example.powerplant.service;
 
 
 import com.example.powerplant.entity.PowerPlantEntity;
-import com.example.powerplant.payload.response.PowerPlantRegisterResponse;
 import com.example.powerplant.payload.response.SearchResponse;
 import com.example.powerplant.repository.PowerPlantRepository;
 import org.junit.jupiter.api.Assertions;
@@ -40,19 +39,13 @@ class SearchServiceTest {
 
     @Test
     void testGetNamesAndStatistics() {
-        // Prepare mock data
-        PowerPlantRegisterResponse plant1 = PowerPlantRegisterResponse.builder().name("Plant1").postcode(123).capacity(1000L).build();
-        PowerPlantRegisterResponse plant2 = PowerPlantRegisterResponse.builder().name("Plant2").postcode(123).capacity(2000L).build();
-        PowerPlantRegisterResponse plant3 = PowerPlantRegisterResponse.builder().name("Plant3").postcode(123).capacity(1500L).build();
         PowerPlantEntity plantEntity1 = PowerPlantEntity.builder().name("Plant1").postcode(123).capacity(1000L).build();
         PowerPlantEntity plantEntity2 = PowerPlantEntity.builder().name("Plant2").postcode(123).capacity(2000L).build();
         PowerPlantEntity plantEntity3 = PowerPlantEntity.builder().name("Plant3").postcode(123).capacity(1500L).build();
 
-        // Mock repository to return the flux of power plants
         when(powerPlantRepository.findByPostcodeAndCapacityRange(anyInt(), anyInt(), anyLong(), anyLong()))
-                .thenReturn(Flux.just(plantEntity1, plantEntity2, plantEntity3));
+                .thenReturn(Flux.just(plantEntity1));
 
-        // Execute the method to be tested
         Mono<SearchResponse> result = searchService.getNamesAndStatistics(500L, 3000L, 1000, 2000);
 
         // Verify the results using StepVerifier
