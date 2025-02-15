@@ -63,27 +63,19 @@ tasks.named('test') {
 
 jacocoTestReport {
     dependsOn test
-
     reports {
-        html {
-            enabled true // Enable HTML report
-        }
-        xml {
-            enabled true // Enable XML report
-        }
-        csv {
-            enabled false // Disable CSV report
-        }
+        xml.required = true
+        csv.required = false
+        html.required = true
     }
-
-    // Specify the source sets for JaCoCo to analyze
-    sourceSets sourceSets.main
-
-    // Exclude POJOs and test classes from coverage
-    classDirectories.setFrom(files(classDirectories.files.collect {
-        fileTree(dir: it, include: '**/*.class').exclude('**/pojos/**', '**/*Pojo.class')
-    }))
-
-    // Include additional source directories if needed
-    additionalSourceDirs.setFrom(files(sourceSets.main.allSource.srcDirs))
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    '**/payload/**',
+                    '**/entity/**',
+                    '**/repository/**',
+            ])
+        }))
+    }
+    finalizedBy(jacocoTestCoverageVerification)
 }

@@ -43,7 +43,7 @@ class SearchServiceTest {
                 .thenReturn(Flux.just(plantEntity1, plantEntity2, plantEntity3));
 
         // Call the method under test
-        Flux<SearchService.StatsAccumulator> resultFlux = searchService.getNamesAndStatistics(100, 300, 12345, 12347);
+        Flux<SearchService.StatsAccumulator> resultFlux = searchService.getNamesAndStatistics(100L, 300L, 12345, 12347);
 
         // Verify the results
         StepVerifier.create(resultFlux)

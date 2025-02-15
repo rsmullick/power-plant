@@ -20,7 +20,7 @@ public class SearchService {
         this.powerPlantRepository = powerPlantRepository;
     }
 
-    public Flux<StatsAccumulator> getNamesAndStatistics(long minCapacity, long maxCapacity, int minPostcode, int maxPostcode) {
+    public Flux<StatsAccumulator> getNamesAndStatistics(Long minCapacity, Long maxCapacity, Integer minPostcode, Integer maxPostcode) {
         return powerPlantRepository
                 .findByPostcodeAndCapacityRange(minPostcode, maxPostcode, minCapacity, maxCapacity)
                 .map(PowerPlantService::convertToResponse) // Convert to response format
