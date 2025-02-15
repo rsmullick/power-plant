@@ -34,7 +34,7 @@ public class PowerPlantService {
     public Flux<PowerPlantRegisterResponse> registerPowerPlants(List<PowerPlantEntity> powerPlantEntities) {
         return powerPlantRepository.saveAll(powerPlantEntities).onErrorContinue((e, i) -> {
             log.error("Error For Item {}, error message {}", i, e.getMessage());
-        }).map(PowerPlantService::convertToResponse);
+        }).filter(o->o.getId()!=null).map(PowerPlantService::convertToResponse);
     }
 
     public Mono<PowerPlantRegisterResponse> registerPowerPlant(PowerPlantRegistrationRequest request) {
