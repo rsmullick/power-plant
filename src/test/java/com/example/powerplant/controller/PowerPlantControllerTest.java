@@ -2,6 +2,7 @@ package com.example.powerplant.controller;
 
 import com.example.powerplant.payload.request.PowerPlantRegistrationRequest;
 import com.example.powerplant.payload.response.PowerPlantRegisterResponse;
+import com.example.powerplant.payload.response.SearchResponse;
 import com.example.powerplant.service.PowerPlantService;
 import com.example.powerplant.service.SearchService;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,17 +60,17 @@ class PowerPlantControllerTest {
         Long minCapacity = 100L;
         Long maxCapacity = 500L;
 
-        SearchService.StatsAccumulator statsAccumulator = new SearchService.StatsAccumulator(/* initialize fields */);
+        SearchResponse searchResponse = new SearchResponse();
 
         when(searchService.getNamesAndStatistics(minCapacity, maxCapacity, startPostcode, endPostcode))
-                .thenReturn(Flux.just(statsAccumulator));
+                .thenReturn(Flux.just(searchResponse));
 
         // Act
-        Flux<SearchService.StatsAccumulator> result = powerPlantController.searchResponseMono(startPostcode, endPostcode, minCapacity, maxCapacity);
+        Flux<SearchResponse> result = powerPlantController.searchResponseMono(startPostcode, endPostcode, minCapacity, maxCapacity);
 
         // Assert
         StepVerifier.create(result)
-                .expectNext(statsAccumulator)
+                .expectNext(searchResponse)
                 .verifyComplete();
     }
 
@@ -78,18 +79,17 @@ class PowerPlantControllerTest {
         // Arrange
         Integer startPostcode = 1000;
         Integer endPostcode = 2000;
-
-        SearchService.StatsAccumulator statsAccumulator = new SearchService.StatsAccumulator(/* initialize fields */);
+        SearchResponse searchResponse = new SearchResponse();
 
         when(searchService.getNamesAndStatistics(null, null, startPostcode, endPostcode))
-                .thenReturn(Flux.just(statsAccumulator));
+                .thenReturn(Flux.just(searchResponse));
 
         // Act
-        Flux<SearchService.StatsAccumulator> result = powerPlantController.searchResponseMono(startPostcode, endPostcode, null, null);
+        Flux<SearchResponse> result = powerPlantController.searchResponseMono(startPostcode, endPostcode, null, null);
 
         // Assert
         StepVerifier.create(result)
-                .expectNext(statsAccumulator)
+                .expectNext(searchResponse)
                 .verifyComplete();
     }
 }

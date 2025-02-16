@@ -7,7 +7,6 @@ import com.example.powerplant.repository.PowerPlantRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
@@ -28,7 +27,8 @@ public class PowerPlantService {
         return
                 requests.mapNotNull(o -> convertToEntity(o, now)).buffer(BUFFER_SIZE)
                         .parallel()
-                        .flatMap(this::registerPowerPlants).sequential().onTerminateDetach();
+                        .flatMap(this::registerPowerPlants).sequential().onTerminateDetach()
+                        .doOnComplete(() -> log.info("PowerPlantService registered at {}", now));
     }
 
     public Flux<PowerPlantRegisterResponse> registerPowerPlants(List<PowerPlantEntity> powerPlantEntities) {
@@ -37,11 +37,7 @@ public class PowerPlantService {
         }).filter(o->o.getId()!=null).map(PowerPlantService::convertToResponse);
     }
 
-    public Mono<PowerPlantRegisterResponse> registerPowerPlant(PowerPlantRegistrationRequest request) {
-        return powerPlantRepository.save(convertToEntity(request, Instant.now())).mapNotNull(PowerPlantService::convertToResponse);
-    }
-
-    protected static PowerPlantEntity convertToEntity(PowerPlantRegistrationRequest request, Instant timestamp) {
+    private static PowerPlantEntity convertToEntity(PowerPlantRegistrationRequest request, Instant timestamp) {
         return PowerPlantEntity.builder()
                 .name(request.getName())
                 .capacity(request.getCapacity())
@@ -50,7 +46,7 @@ public class PowerPlantService {
                 .build();
     }
 
-    protected static PowerPlantRegisterResponse convertToResponse(PowerPlantEntity powerPlantEntity) {
+    private static PowerPlantRegisterResponse convertToResponse(PowerPlantEntity powerPlantEntity) {
         return PowerPlantRegisterResponse.builder()
                 .id(powerPlantEntity.getId())
                 .postcode(powerPlantEntity.getPostcode())

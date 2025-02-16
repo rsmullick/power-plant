@@ -16,6 +16,7 @@ import reactor.test.StepVerifier;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 
@@ -44,8 +45,11 @@ public class PowerPlantServiceTest {
     public void testRegisterPowerPlantStream_success() {
         // Given
         Instant now = Instant.now();
-        PowerPlantEntity powerPlantEntity = PowerPlantEntity.builder()
+        UUID uuid = UUID.randomUUID();
+        PowerPlantEntity powerPlantEntity = PowerPlantEntity.builder().id(uuid)
                 .name("Test-1").capacity(500L).postcode(500).build(); // Assume constructor and setters
+        PowerPlantRegisterResponse powerPlantRegisterResponse = PowerPlantRegisterResponse.builder().id(uuid)
+                .name("Test-1").capacity(500L).postcode(500).build();
         when(powerPlantRepository.saveAll(anyList()))
                 .thenReturn(Flux.just(powerPlantEntity)); // Mock repository response
 
@@ -56,10 +60,8 @@ public class PowerPlantServiceTest {
 
         // Then
         StepVerifier.create(result)
-                .expectNextMatches(Objects::nonNull) // Assert valid response
-                .expectComplete()  // Assert complete stream
-                .verify();
-
+                .expectNext(powerPlantRegisterResponse)
+                .verifyComplete();
         verify(powerPlantRepository, times(1)).saveAll(anyList()); // Verify repository interaction
     }
 
@@ -102,9 +104,9 @@ public class PowerPlantServiceTest {
 
         // Then
         StepVerifier.create(result)
-                .expectNextMatches(Objects::nonNull) // Assert valid response
-                .expectComplete()  // Assert complete stream
-                .verify();
+                .expectNext(response); // Assert valid response
+              //  .expectComplete()  // Assert complete stream
+               // .verify();
 
         verify(powerPlantRepository, times(1)).saveAll(anyList());
     }

@@ -1,12 +1,14 @@
 package com.example.powerplant.service;
 
 import com.example.powerplant.payload.response.PowerPlantRegisterResponse;
+import com.example.powerplant.payload.response.SearchResponse;
 import com.example.powerplant.repository.PowerPlantRepository;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.concurrent.TimeoutException;
@@ -20,19 +22,19 @@ public class SearchService {
         this.powerPlantRepository = powerPlantRepository;
     }
 
-    public Flux<StatsAccumulator> getNamesAndStatistics(Long minCapacity, Long maxCapacity, Integer minPostcode, Integer maxPostcode) {
-        return powerPlantRepository
+    public Flux<SearchResponse> getNamesAndStatistics(Long minCapacity, Long maxCapacity, Integer minPostcode, Integer maxPostcode) {
+        return getStatistics(minCapacity, maxCapacity, minPostcode, maxPostcode).mergeWith(powerPlantRepository
                 .findByPostcodeAndCapacityRange(minPostcode, maxPostcode, minCapacity, maxCapacity)
-                .map(PowerPlantService::convertToResponse) // Convert to response format
-                .scan(new StatsAccumulator(), StatsAccumulator::accumulate) // Accumulate statistics
-                .map(o -> o)
-                .timeout(Duration.ofSeconds(5)) // Timeout after 5 seconds of inactivity
+                .timeout(Duration.ofSeconds(5))
                 .onErrorResume(TimeoutException.class, e -> {
                     log.error("No items received for 5 seconds. Completing the Flux.");
                     return Flux.empty(); // Complete the Flux gracefully
-                });
+                })).doOnComplete(() -> log.info("Request Completed"));
     }
-
+public Mono<SearchResponse> getStatistics(Long minCapacity, Long maxCapacity, Integer minPostcode, Integer maxPostcode) {
+        return powerPlantRepository.findCntMinMaxSumAvgCapacityPostcodeAndCapacityRange(minPostcode, maxPostcode, minCapacity, maxCapacity)
+                ; // .map(SearchResponse::new);
+}
     // StatsAccumulator class to hold statistics
     @Getter
     @ToString

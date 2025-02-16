@@ -7,7 +7,6 @@ import com.example.powerplant.service.PowerPlantService;
 import com.example.powerplant.service.SearchService;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/power-plant")
@@ -26,10 +25,10 @@ public class PowerPlantController {
     }
 
     @GetMapping(value = "/search")
-    public Flux<SearchService.StatsAccumulator> searchResponseMono(@RequestParam Integer startPostcode,
-                                           @RequestParam Integer endPostcode,
-                                           @RequestParam(required = false) Long minCapacity,
-                                           @RequestParam(required = false) Long maxCapacity) {
+    public Flux<SearchResponse> searchResponseMono(@RequestParam Integer startPostcode,
+                                                   @RequestParam Integer endPostcode,
+                                                   @RequestParam(required = false) Long minCapacity,
+                                                   @RequestParam(required = false) Long maxCapacity) {
         return searchService.getNamesAndStatistics(minCapacity, maxCapacity, startPostcode, endPostcode);
     }
 
